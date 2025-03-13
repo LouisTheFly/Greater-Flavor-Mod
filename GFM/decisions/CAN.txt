@@ -1,4 +1,47 @@
 political_decisions = {
+
+	webster_ashburton_treaty = {
+		picture = webster_ashburton_treaty
+        potential = {
+			NOT = { has_global_flag = webster_ashburton_treaty }
+            tag = ENG
+			owns = 250
+            OR = {
+                USA = { any_owned_province = { region = USA_247 } }
+                NEN = { any_owned_province = { region = USA_247 } }
+            }
+        }
+
+        allow = {
+            OR = {
+                AND = {
+                    USA = { owns = 249 owns = 155 is_vassal = no }
+                    NOT = { war_with = USA truce_with = USA }
+                }
+                AND = {
+                    NEN = { owns = 249 is_vassal = no }
+                    NOT = { war_with = NEN truce_with = NEN }
+                }
+            }
+        }
+
+        effect = {
+			set_global_flag = webster_ashburton_treaty
+			badboy = -2
+            prestige = 10
+            249 = { owner = { country_event = 44122 } } #Bangor
+        }
+
+        ai_will_do = {
+            factor = 1
+            #modifier = {
+            #    factor = 0
+            #    NOT = { year = 1842 }
+            #}
+        }
+    }
+
+
     canadian_dominion = {
 		picture = canadian_dominion
         potential = {
