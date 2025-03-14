@@ -1071,6 +1071,379 @@ country_event = {
     }
 }
 
+#Newfoundland asks for independence
+country_event = {
+    id = 44330
+    title = "EVTNAME44330"
+    desc = "EVTDESC44330"
+    picture = "newfoundland_colony"
+    
+	major = yes
+
+    trigger = {
+        year = 1907
+        any_owned_province = { is_core = NEW }
+        is_possible_vassal = NEW
+        war = no
+        NOT = { exists = NEW }
+		NOT = { has_country_flag = NEW_independence_resoundly_refused }
+		NOT = { 3612 = { is_core = THIS } }
+    }
+
+    mean_time_to_happen = {
+        months = 12
+        modifier = {
+            factor = 10
+            has_country_flag = NEW_independence_refused
+        }
+        modifier = {
+            factor = 0.8
+            any_state = {
+                any_owned_province = { is_core = NEW }
+                average_militancy = 3
+            }
+        }
+        modifier = {
+            factor = 0.8
+            any_state = {
+                any_owned_province = { is_core = NEW }
+                average_militancy = 4
+            }
+        }
+        modifier = {
+            factor = 0.5
+            year = 1912
+            NOT = { has_country_flag = NEW_independence_refused }
+        }
+        modifier = {
+            factor = 0.01
+            exists = NZL
+        }
+    }
+
+    option = {
+        name = "This can only be good for the empire. §GLose 3 infamy§W"
+        clr_country_flag = NEW_independence_refused
+        prestige = -10
+        badboy = -3
+        any_pop = {
+            limit = { location = { is_core = NEW } }
+            militancy = -10
+        }
+        release_vassal = NEW
+		NEW = {
+			government = colonial_company
+			add_accepted_culture = british
+			set_country_flag = british_accepted
+			all_core = { remove_core = ENG }
+            prestige = -100
+            relation = { who = USA value = 200 }
+			capital = 74
+        }
+        relation = { who = NEW value = 400 }
+        diplomatic_influence = { who = NEW value = 400 }
+        any_pop = { consciousness = 1 }
+        
+		ai_chance = {
+            factor = 80
+            modifier = {
+                factor = 0
+                OR = {
+                    government = proletarian_dictatorship
+                    government = radical_republic
+                    government = fascist_dictatorship
+                    government = presidential_dictatorship
+                }
+            }
+            modifier = {
+                factor = 0.25
+                OR = {
+                    government = absolute_monarchy
+                    government = absolute_empire
+                }
+            }
+            modifier = {
+                factor = 1.5
+                government = democracy
+            }
+            modifier = {
+                factor = 0.5
+                war_policy = jingoism
+            }
+            modifier = {
+                factor = 0.75
+                war_policy = pro_military
+            }
+            modifier = {
+                factor = 1.25
+                war_policy = anti_military
+            }
+            modifier = {
+                factor = 1.5
+                war_policy = pacifism
+            }
+            modifier = {
+                factor = 1.2
+                militancy = 3
+            }
+            modifier = {
+                factor = 1.2
+                militancy = 5
+            }
+            modifier = {
+                factor = 2.0
+                exists = CAN
+            }
+
+        }
+    }
+	
+    option = {
+        name = "EVT44330OPTB"
+        set_country_flag = NEW_independence_refused
+        any_owned = {
+            limit = { is_core = NEW }
+            any_pop = {
+                militancy = 3
+            }
+        }
+		
+        ai_chance = {
+            factor = 20
+            modifier = {
+                factor = 1.75
+                OR = {
+                    government = absolute_monarchy
+                    government = absolute_empire
+                }
+            }
+            modifier = {
+                factor = 0.5
+                government = democracy
+            }
+            modifier = {
+                factor = 1.5
+                war_policy = jingoism
+            }
+            modifier = {
+                factor = 1.25
+                war_policy = pro_military
+            }
+            modifier = {
+                factor = 0.75
+                war_policy = anti_military
+            }
+            modifier = {
+                factor = 0.5
+                war_policy = pacifism
+            }
+            modifier = {
+                factor = 0.8
+                militancy = 3
+            }
+            modifier = {
+                factor = 0.8
+                militancy = 5
+            }
+        }
+    }
+	
+    option = {
+        name = "EVT44330OPTC"
+        clr_country_flag = NEW_independence_refused
+        prestige = -10
+        badboy = -3
+        any_pop = {
+            limit = { location = { is_core = NEW } }
+            militancy = -10
+        }
+        release_vassal = NEW
+		NEW = {
+			government = colonial_company
+			add_accepted_culture = british
+			set_country_flag = british_accepted
+			all_core = { remove_core = ENG }
+            prestige = -100
+            relation = { who = USA value = 200 }
+			capital = 74
+        }
+		relation = { who = NEW value = 400 }
+        diplomatic_influence = { who = NEW value = 400 }
+        any_pop = { consciousness = 1 }
+        change_tag_no_core_switch = NEW
+        
+		ai_chance = { factor = 0 }
+    }
+	
+	option = {
+		name = "Never! Suppress them all!"
+		set_country_flag = NEW_independence_resoundly_refused
+		prestige = 10
+		any_pop = {
+			limit = { location = { is_core = NEW } }
+			militancy = 6
+		}
+		
+		ai_chance = { factor = 0 }
+	}
+}
+
+#The Alaskan Dominion
+country_event = {
+    id = 44340
+    title = "EVTNAME44340"
+    desc = "EVTDESC44340"
+    picture = "alaska"
+
+    trigger = {
+        year = 1880
+        is_our_vassal = CAN
+        any_owned_province = {
+            region = USA_1
+            controlled_by = THIS
+        }
+        war = no
+        CAN = { war = no }
+        NOT = { capital_scope = { continent = north_america } }
+    }
+
+    mean_time_to_happen = {
+        months = 6
+    }
+
+    option = {
+        name = "EVT44340OPTA" #Join with Canada
+		badboy = -1
+		3597 = {# Atlin
+			remove_core = THIS
+			add_core = CAN
+		}
+        USA_1 = { #Alaska
+            remove_core = THIS
+            add_core = CAN
+        }
+        any_owned = {
+            limit = {
+				OR = {
+					region = USA_1
+					province_id = 3597
+				}
+			}
+            secede_province = CAN
+        }
+        random_country = { #If Canada isnt in the your sphere remove them from the other sphere
+            limit = {
+                is_sphere_leader_of = CAN
+                NOT = { tag = THIS }
+            }
+            diplomatic_influence = { who = CAN value = -100 }
+        }
+        relation = { who = CAN value = 100 }
+        diplomatic_influence = { who = CAN value = 100 }
+		
+        ai_chance = { factor = 1 }
+    }
+	
+	option = {
+        name = "EVT44340OPTB" #Join with Columbia
+		badboy = -1
+        USA_1 = { #Alaska
+            remove_core = THIS
+            add_core = COL
+        }
+        any_owned = {
+            limit = {
+				OR = {
+					region = USA_1
+					province_id = 3597
+				}
+			}
+            secede_province = COL
+        }
+        random_country = { #If COL isnt in the your sphere remove them from the other sphere
+            limit = {
+                is_sphere_leader_of = COL
+                NOT = { tag = THIS }
+            }
+            diplomatic_influence = { who = COL value = -100 }
+        }
+        relation = { who = COL value = 100 }
+        diplomatic_influence = { who = COL value = 100 }
+		
+        ai_chance = { factor = 0 }
+    }
+
+    option = {
+        name = "EVT44340OPTC" #Independent Alaska
+        prestige = -10
+        badboy = -3
+        any_pop = {
+            limit = { location = { is_core = LSK } }
+            militancy = -10
+        }
+        release_vassal = LSK
+        LSK = {
+			government = colonial_company
+			primary_culture = anglo_canadian
+			add_accepted_culture = british
+			set_country_flag = british_accepted
+			all_core = { remove_core = ENG }
+            prestige = -100
+            relation = { who = USA value = 200 }
+            relation = { who = CAN value = 200 }			
+			capital = 1
+        }
+        relation = { who = LSK value = 400 }
+        diplomatic_influence = { who = LSK value = 400 }
+        any_pop = { consciousness = 1 }
+		
+        ai_chance = { factor = 0 }
+    }
+
+    option = {
+        name = "EVT44340OPTD" #Refuse
+        USA_1 = {
+            remove_core = THIS
+        }
+        any_owned = {
+            limit = { is_core = LSK }
+            any_pop = {
+                militancy = 5
+            }
+        }
+		
+        ai_chance = { factor = 0 }
+    }
+
+    option = {
+        name = "EVT44340OPTE" #Play as
+        prestige = -10
+        badboy = -3
+        any_pop = {
+            limit = { location = { is_core = LSK } }
+            militancy = -10
+        }
+        release_vassal = LSK
+		LSK = {
+			government = colonial_company
+			primary_culture = anglo_canadian
+			add_accepted_culture = british
+			set_country_flag = british_accepted
+			all_core = { remove_core = ENG }
+            prestige = -100
+            relation = { who = USA value = 200 }
+            relation = { who = CAN value = 200 }			
+			capital = 1
+        }
+        relation = { who = LSK value = 400 }
+        diplomatic_influence = { who = LSK value = 400 }
+        any_pop = { consciousness = 1 }
+        change_tag_no_core_switch = LSK
+		
+        ai_chance = { factor = 0 }
+    }
+}
+
 #############################################################
 #                                                           #
 #                   Post-Independence Events                #
@@ -1322,7 +1695,7 @@ country_event = {
         }
     }
 
-    option = {
+    option = { ###To be reworked
         name = "EVT44321OPTB"
         set_country_flag = refused_ruperts_land
         FROM = { set_country_flag = refused_ruperts_land }

@@ -64,7 +64,7 @@ country_event = { #Webster-Ashburton Treaty
     }
 }
 
-country_event = { #The Caroline Affair
+country_event = { #The Caroline Affair - USA may intervene in Lower Canada
 	id = 4207074
 	title = "The Caroline Affair"
 	desc = "EVTDESC4207074"
@@ -229,18 +229,6 @@ country_event = {
 	}
 }
 
-country_event = { 
-	id = 4207081
-	title = "War with America"
-	desc = "EVTDESC4207081"
-	picture = "windmill_battle"
-	fire_only_once = yes
-	is_triggered_only = yes
-
-	option = {
-		name = "A meaningless conflict over pride, eh?"
-	}
-}
 
 country_event = {
 	id = 4207080
@@ -252,6 +240,19 @@ country_event = {
 
 	option = {
 		name = "They will have to come and take it!"
+	}
+}
+
+country_event = { 
+	id = 4207081
+	title = "War with America"
+	desc = "EVTDESC4207081"
+	picture = "windmill_battle"
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {
+		name = "A meaningless conflict over pride, eh?"
 	}
 }
 

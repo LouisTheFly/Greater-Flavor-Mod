@@ -3178,7 +3178,7 @@ political_decisions = {
 			}
 			INL = { set_country_flag = native_protection_act_enacted add_country_modifier = { name = winnetou_forbids_you duration = -1 } }
 			CHE = { set_country_flag = native_protection_act_enacted add_country_modifier = { name = winnetou_forbids_you duration = -1 } }
-			CAN_13 = { add_core = RPL }
+			CAN_13 = { add_core = RPL } # Need to move these to province files
 			ENG_22 = { add_core = RPL }
 			ENG_30 = { add_core = RPL }
 			ENG_36 = { add_core = RPL }
@@ -3186,6 +3186,8 @@ political_decisions = {
 			USA_78 = { add_core = RPL }
 			USA_81 = { add_core = RPL }
 			USA_91 = { add_core = RPL }
+			111 = { add_core = RPL }
+			114 = { add_core = RPL }
 			#From the homeland map
 			115 = { add_core = MTC }
 			118 = { add_core = MTC }
