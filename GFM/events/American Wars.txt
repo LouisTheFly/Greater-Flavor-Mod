@@ -627,7 +627,67 @@ country_event = {
     }
 }
 
-#Oregon Treaty events
+#Great Migration of 1843 to Oregon - Sets up the Oregon Treaty
+country_event = {
+    id = 44123
+    title = "EVTNAME44123"
+    desc = "EVTDESC44123"
+    picture = "1843_GreatMigration"
+
+    fire_only_once = yes
+
+    trigger = {
+		tag = USA
+        year = 1841
+        owns = 92 # Kullyspell
+		USA_81 = { empty = yes } #Oregon
+    }
+
+    mean_time_to_happen = {
+        months = 3
+        modifier = { factor = 0.5 year = 1843 }
+		modifier = { factor = 0.1 year = 1844 }
+    }
+
+    option = { #USA gets the uncolonised section of Oregon with its vassal the Oregon Territory getting the lands west of the willamette river
+        name = "EVTOPTA44123"
+		set_country_flag = oregon_great_migration
+		prestige = 10
+		USA_81 = { #Oregon
+			secede_province = USA 
+			add_core = USA
+			life_rating = 15
+			random_list = { #Multiplies any yankee pops between 2-3x
+                33 = { any_pop = { limit = { has_pop_culture = yankee } reduce_pop = 2 } }
+                33 = { any_pop = { limit = { has_pop_culture = yankee } reduce_pop = 2.5 } }
+                33 = { any_pop = { limit = { has_pop_culture = yankee } reduce_pop = 3 } }
+            }
+		} 
+		91 = { #Boise
+			secede_province = USA
+			add_core = USA
+		}		
+        81 = { add_core = UOR change_province_name = "Portland" }
+        83 = { add_core = UOR change_province_name = "Klamath Falls" }
+		3461 = { add_core = UOR change_province_name = "Salem"}
+		3462 = { add_core = UOR change_province_name = "Eugene" }
+		82 = { change_province_name = "Baker City" }
+		release_vassal = UOR
+		UOR = { government = prov_gov_conservative }
+		relation = { who = UOR value = 400 }
+        diplomatic_influence = { who = UOR value = 400 }
+		USA_81 = { add_province_modifier = { name = indian_lands duration = -1 } } # Must be added last as is cleared on change owner
+    }
+}
+
+###########################
+###Oregon Treaty events
+#-USA gets the event, and offers 1 of 5 proposals for splitting Columbia/Oregon to ENG
+#-ENG can either accept or counter-demand all of Oregon
+#-USA decides whether to concede or fight
+#-If war happens the winner will get all of Columbia/Oregon and a decision to remove the opponent's cores
+###########################
+
 country_event = {
     id = 44150
     title = "EVTNAME44150" #54-40 or Fight!
@@ -636,12 +696,20 @@ country_event = {
 
     fire_only_once = yes
 
+
+	immediate = {
+		inherit = UOR #Failsafe in case oregon migration event (44123) has happened
+		clr_country_flag = oregon_great_migration
+	}
+
     trigger = {
         year = 1845
         tag = USA
-        79 = {
-            empty = no
-            OR = {
+		has_country_flag = oregon_great_migration #set by event 44123
+        COL = { exists = no }
+		USA_78 = { #Washington owned by ENG(or vassal) or USA
+			empty = no
+			OR = {
                 owned_by = USA
                 owned_by = ENG
                 AND = {
@@ -657,1505 +725,416 @@ country_event = {
                     }
                 }
             }
-        }
-		3600 = {
-            empty = no
-            OR = {
-                owned_by = USA
-                owned_by = ENG
-                AND = {
-                    owned_by = RPL
-                    RPL = {
-                        vassal_of = ENG
-                    }
-                }
-                AND = {
-                    owned_by = CAN
-                    CAN = {
-                        vassal_of = ENG
-                    }
-                }
-            }
-        }
-        3466 = {
-            empty = no
-            OR = {
-                owned_by = USA
-                owned_by = ENG
-                AND = {
-                    owned_by = RPL
-                    RPL = {
-                        vassal_of = ENG
-                    }
-                }
-                AND = {
-                    owned_by = CAN
-                    CAN = {
-                        vassal_of = ENG
-                    }
-                }
-            }
-        }
+		}
         NOT = {
             war_with = ENG
             has_country_flag = oregon_treaty
         }
-        COL = { exists = no }
     }
 
-    mean_time_to_happen = {
-        months = 3
-    }
+    mean_time_to_happen = { months = 3 }
 
     option = {
-        name = "EVT44150OPTA" #War
+        name = "EVT44150OPTA" #USA Demand all of Columbia up to 54th parallel
         set_country_flag = oregon_treaty
-        ENG = { country_event = 44154 }
+        ENG = { country_event = 44151 } 
         badboy = 5
-        COL = { all_core = { add_core = ENG } }
-		COL = { all_core = { add_core = USA } }
-		CAN_13 = { add_core = USA }
-        CAN_13 = { add_core = ENG }
-        17 = { remove_core = USA remove_core = ENG }
-        3597 = { remove_core = USA remove_core = ENG }
-        2 = { remove_core = USA remove_core = ENG }
-        18 = { remove_core = USA remove_core = ENG }
-        2629 = { remove_core = USA remove_core = ENG }
+		prestige = 10
         any_pop = {
             dominant_issue = {
                 factor = 0.05
                 value = jingoism
             }
         }
+		
         ai_chance = {
             factor = 5
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_island
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_columbia_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uor_oregon
-			}
+			modifier = { factor = 1	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 1	has_global_flag = railroaded_uk_oregon }	
+			modifier = { factor = 1	has_global_flag = railroaded_us_oregon }			
+			modifier = { factor = 0 has_global_flag = railroaded_parallel_island }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_columbia_oregon }
         }
     }
 
     option = {
-        name = "Maybe the British would agree to the 49th parallel border if they keep Vancouver Island." #Negotiations
+        name = "EVT44150OPTB" #Suggest 49th parallel border - including Vancouver Island
         set_country_flag = oregon_treaty
-		USA_78 = { add_core = USA }
-		3598 = { remove_core = USA }
-        ENG = { country_event = 44151 }
+        ENG = { country_event = 44152 }
         any_pop = {
             scaled_consciousness = {
                 issue = jingoism
                 factor = 3
             }
         }
-        ai_chance = {
-            factor = 75
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_island
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_columbia_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_war_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uor_oregon
-			}
-        }
-    }
-
-    option = {
-        name = "Open negotiations with the British to obtain a border on the 49th parallel until the Pacific." #Negotiations
-        set_country_flag = oregon_treaty
-		USA_78 = { add_core = USA }
-        ENG = { country_event = 441501 }
-        any_pop = {
-            scaled_consciousness = {
-                issue = jingoism
-                factor = 3
-            }
-        }
+        
         ai_chance = {
             factor = 10
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_columbia_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_war_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uor_oregon
-			}
+			modifier = { factor = 0	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 0	has_global_flag = railroaded_uk_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_us_oregon }			
+			modifier = { factor = 1 has_global_flag = railroaded_parallel_island }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_columbia_oregon }
         }
     }
 
     option = {
-        name = "Perhaps we can agree on a neutral Oregon?" #UOR independence?
+        name = "EVT44150OPTC" #Suggest 49th parallel border - without Vancouver Island
         set_country_flag = oregon_treaty
-        ENG = { country_event = 441511 }
+        ENG = { country_event = 44153 }
+        any_pop = {
+            scaled_consciousness = {
+                issue = jingoism
+                factor = 3
+            }
+        }
+		
         ai_chance = {
-            factor = 5
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_island
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_columbia_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_war_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_oregon
-			}
+            factor = 75
+			modifier = { factor = 0	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 0	has_global_flag = railroaded_uk_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_us_oregon }			
+			modifier = { factor = 0 has_global_flag = railroaded_parallel_island }
+			modifier = { factor = 1	has_global_flag = railroaded_parallel_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_columbia_oregon }
         }
     }
 
-    option = { #Status Quo/Columbia River
-        name = "EVT44150OPTC"
+    option = {
+        name = "EVT44150OPTD" #Suggest independent and neutral oregon (UOR independence)
         set_country_flag = oregon_treaty
-        ENG = { country_event = 44156 }
+        ENG = { country_event = 44154 }
+        
+        ai_chance = {
+            factor = 5
+			modifier = { factor = 0	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 0	has_global_flag = railroaded_uk_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_us_oregon }			
+			modifier = { factor = 0 has_global_flag = railroaded_parallel_island }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_oregon }
+			modifier = { factor = 1	has_global_flag = railroaded_uor_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_columbia_oregon }
+        }
+    }
+
+    option = { 
+        name = "EVT44150OPTE" #Offer Status Quo border along Columbia River
+        set_country_flag = oregon_treaty
+        ENG = { country_event = 44155 }
         any_pop = {
             scaled_consciousness = {
                 issue = jingoism
                 factor = 6
             }
         }
+        
         ai_chance = {
             factor = 5
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_island
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_war_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uor_oregon
-			}
-        }
-    }
-}
-
-country_event = {
-    id = 441511
-    title = "The Columbia District" #The Columbia District
-    desc = "EVTDESC441511"
-    picture = "treaty"
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT441511OPTA" #UK accepts
-        badboy = -2
-        prestige = -10
-		USA = { country_event = 441531 }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        ai_chance = {
-            factor = 95
-        }
-    }
-
-    option = {
-        name = "EVT44151OPTB" #UK rejects
-        badboy = 5
-        prestige = 10
-        COL = { all_core = { add_core = ENG } }
-        17 = { add_core = COL remove_core = RPL }
-        3597 = { add_core = COL remove_core = RPL }
-		2 = { add_core = COL remove_core = RPL }
-        2629 = { remove_core = USA remove_core = ENG }
-        18 = { remove_core = USA remove_core = ENG }
-        leave_alliance = USA
-		USA = { country_event = 44153 }
-        ai_chance = {
-            factor = 5
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uor_oregon
-			}
+			modifier = { factor = 0	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 0	has_global_flag = railroaded_uk_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_us_oregon }			
+			modifier = { factor = 0 has_global_flag = railroaded_parallel_island }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_oregon }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
+			modifier = { factor = 1	has_global_flag = railroaded_columbia_oregon }
         }
     }
 }
 
 country_event = {
     id = 44151
-    title = "EVTNAME44151" #The Columbia District
+    title = "EVTNAME44151" #America claims all of Columbia - do we back down?
     desc = "EVTDESC44151"
-    picture = "treaty"
+    news = yes
+    news_desc_long = "EVTDESC44154_NEWS_LONG"
+    news_desc_medium = "EVTDESC44154_NEWS_MEDIUM"
+    news_desc_short = "EVTDESC44154_NEWS_SHORT"
+    picture = "administration"
 
     is_triggered_only = yes
 
     option = {
-        name = "EVT44151OPTA" #UK accepts
-        badboy = -2
-        prestige = -10
-		USA = { country_event = 441521 }
-        CAN_13 = {
-            limit = {
-                empty = no
-            }
-            add_core = ENG
-            add_province_modifier = {
-                name = gateway_to_america
-                duration = 365
-            }
-        }
-        ENG_22 = { add_core = ENG }
-		78 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		79 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		3600 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		3464 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		3465 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		3466 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-		80 = { remove_core = COL remove_core = ENG remove_core = CAN remove_core = RPL }
-        USA_81 = {
-            remove_core = COL
-            remove_core = ENG
-            remove_core = CAN
-            remove_core = RPL
-        }
-        USA_91 = {
-            remove_core = COL
-            remove_core = ENG
-            remove_core = CAN
-            remove_core = RPL
-        }
-        114 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-        }
-        111 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-        }
-        RPL = {
-            any_owned = {
-                limit = {
-                    empty = no
-                    region = CAN_13
-                }
-                add_core = COL
-                add_core = RPL
-            }
-        }
-        CAN = {
-            any_owned = {
-                limit = {
-                    empty = no
-                    region = CAN_13
-                }
-                add_core = COL
-                add_core = CAN
-            }
-        }
-        RPL = {
-            all_core = {
-                remove_core = ENG
-            }
-        }
-		23 = { remove_core = ENG }
-		2597 = { remove_core = ENG }
-        CAN = {
-            all_core = {
-                remove_core = ENG
-            }
-        }
-		any_owned = {
-			limit = {
-				OR = {
-					region = USA_78
-					region = USA_81
-					region = USA_91
+        name = "EVT44151OPTA" #Accept
+        ##set_global_flag = USA_claimoregon
+		USA = { country_event = 44159 }
+        prestige = -40
+		relation = { who = USA value = 100 }
+		COL = { #Any province which is a core of Columbia and owned by ENG or a vassal is ceded to USA
+			all_core = {
+				limit = {
+					owner = {
+						OR = {
+							vassal_of = ENG
+							tag = ENG
+						}
+					}
 				}
-				is_core = USA
+				secede_province = USA
+			}
+		}
+		COL = { #All Columbian cores gain a USA cores and lose any cores from ENG or a vassal
+			all_core = { 
+				add_core = USA 
+				remove_core = ENG 
+				remove_core = RPL
+				remove_core = CAN
+			}
+		}
+		COL = { #All Columbian cores not in Columbia state (below the 49th parallel) removed
+			all_core = {
+				limit = {
+					NOT = { region = CAN_13 }
+				}
+				remove_core = COL
+			}
+		}
+		 
+		ai_chance = {
+            factor = 25
+            modifier = { factor = 1.5 any_greater_power = { war_with = ENG } }
+            modifier = { factor = 0.5 NOT = { AND = { exists = USA relation = { who = USA value = 100 } } } }
+            modifier = { factor = 0.5 war_policy = jingoism }
+			modifier = { factor = 0	has_global_flag = railroaded_war_oregon }			
+			modifier = { factor = 0	has_global_flag = railroaded_uk_oregon }
+        }
+    }
+
+    option = {
+        name = "EVT44151OPTB" #Reject and counter-claim for all of Oregon (Same loc for all reject options)
+        ##set_global_flag = USA_claimoregon
+        ##set_country_flag = oregon_war
+		USA = { country_event = 44160 }
+        prestige = 5
+        leave_alliance = USA
+        relation = { who = USA value = -200 }
+        any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
+			limit = {
+				AND = {
+					is_core = COL
+					owner = {
+						vassal_of = ENG
+					}
+				}
+			}
+			secede_province = ENG
+		}
+		COL = { all_core = { add_core = ENG } }
+		
+        ai_chance = {
+            factor = 75
+            modifier = { factor = 0.5 exists = USA relation = { who = USA value = 100 } }
+            modifier = { factor = 2 exists = USA NOT = { relation = { who = USA value = 0 } } }
+            modifier = { factor = 1.5 war_policy = jingoism }
+            modifier = { factor = 0.8 war_policy = anti_military }
+            modifier = { factor = 0.5 war_policy = pacifism }
+			modifier = { factor = 0	has_global_flag = railroaded_us_oregon }
+        }
+    }
+}
+
+country_event = {
+    id = 44152
+    title = "EVTNAME44152" #America suggests a border on the 49th parallel till the pacific - do we agree?
+    desc = "EVTDESC44152"
+    news = yes
+    news_desc_long = "EVTDESC44154_NEWS_LONG"
+    news_desc_medium = "EVTDESC44154_NEWS_MEDIUM"
+    news_desc_short = "EVTDESC44154_NEWS_SHORT"
+    picture = "administration"
+
+    is_triggered_only = yes
+
+    option = {
+        name = "EVT44152OPTA" #Accept
+        ##set_global_flag = USA_claimoregon
+		USA = { country_event = 44159 }
+        prestige = -20
+		relation = { who = USA value = 75 }
+		any_owned = { #Any province below the 49th parallel and owned by ENG or a vassal is ceded to USA and gains a core
+			limit = {
+				AND = {
+					OR = {
+						region = USA_91 #Idaho
+						region = USA_81 #Oregon
+						region = USA_78 #Washington
+						province_id = 14 #Victoria (on vancouver island)
+					}
+					owner = {
+						OR = {
+							vassal_of = ENG
+							tag = ENG
+						}
+					}
+				}
 			}
 			secede_province = USA
-			remove_core = ENG
-			life_rating = 5
-			add_province_modifier = {
-				name = gateway_to_america
-				duration = 3650
+			add_core = USA
+		}
+		COL = { #Any COL core not owned by ENG or a vassal is removed
+			all_core = {
+				limit = {
+					owner = {
+						NOT = {
+							OR = {
+								vassal_of = ENG
+								tag = ENG
+							}
+						}
+					}
+				}
+				remove_core = COL
+				remove_core = RPL
+				remove_core = CAN
 			}
 		}
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        ai_chance = {
-            factor = 95
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
+		
+		ai_chance = {
+            factor = 25
+            modifier = { factor = 1.5 any_greater_power = { war_with = ENG } }
+            modifier = { factor = 0.5 NOT = { AND = { exists = USA relation = { who = USA value = 100 } } } }
+            modifier = { factor = 0.5 war_policy = jingoism }
         }
     }
 
     option = {
-        name = "EVT44151OPTB" #UK rejects
-        badboy = 5
-        prestige = 10
-        COL = { all_core = { add_core = ENG } }
-        17 = { add_core = COL remove_core = RPL }
-        3597 = { add_core = COL remove_core = RPL }
-		2 = { add_core = COL remove_core = RPL }
-        2629 = { remove_core = USA remove_core = ENG }
-        18 = { remove_core = USA remove_core = ENG }
+        name = "EVT44151OPTB" #Reject and counter-claim for all of Oregon (Same loc for all reject options) 
+        ##set_global_flag = USA_claimoregon
+        ##set_country_flag = oregon_war
+		USA = { country_event = 44160 }
+        prestige = 5
         leave_alliance = USA
-		USA = { country_event = 44153 }
-        ai_chance = {
-            factor = 5
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_oregon
-			}
-        }
-    }
-}
-
-
-country_event = {
-    id = 441501
-    title = "EVTNAME44151" #The Columbia District
-    desc = "EVTDESC441501"
-    picture = "treaty"
-
-    is_triggered_only = yes
-
-	option = {
-        name = "EVT44151OPTC" #UK accepts
-        badboy = -3
-        prestige = -15
-		USA = { country_event = 441522 }
-        CAN_13 = {
-            limit = {
-                empty = no
-            }
-            add_core = ENG
-            add_province_modifier = {
-                name = gateway_to_america
-                duration = 365
-            }
-        }
-        ENG_22 = { add_core = ENG }
-        USA_78 = {
-            remove_core = COL
-            remove_core = ENG
-            remove_core = CAN
-            remove_core = RPL
-        }
-        USA_81 = {
-            remove_core = COL
-            remove_core = ENG
-            remove_core = CAN
-            remove_core = RPL
-        }
-        USA_91 = {
-            remove_core = COL
-            remove_core = ENG
-            remove_core = CAN
-            remove_core = RPL
-        }
-        114 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-        }
-        111 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-        }
-		3598 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-        }
-		14 = {
-            remove_core = COL
-            remove_core = CAN
-            remove_core = RPL
-		}
-        RPL = {
-            any_owned = {
-                limit = {
-                    empty = no
-                    region = CAN_13
-                }
-                add_core = COL
-                add_core = RPL
-            }
-        }
-        CAN = {
-            any_owned = {
-                limit = {
-                    empty = no
-                    region = CAN_13
-                }
-                add_core = COL
-                add_core = CAN
-            }
-        }
-        RPL = {
-            all_core = {
-                remove_core = ENG
-            }
-        }
-		23 = { remove_core = ENG }
-		2597 = { remove_core = ENG }
-        CAN = {
-            all_core = {
-                remove_core = ENG
-            }
-        }
-		any_owned = {
+        relation = { who = USA value = -200 }
+        any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
 			limit = {
-				OR = {
-					region = USA_78
-					province_id = 3598
-					province_id = 14
-					region = USA_81
-					region = USA_91
+				AND = {
+					is_core = COL
+					owner = {
+						vassal_of = ENG
+					}
 				}
-				is_core = USA
 			}
-			secede_province = USA
-			remove_core = ENG
-			life_rating = 5
-			add_province_modifier = {
-				name = gateway_to_america
-				duration = 3650
-			}
+			secede_province = ENG
 		}
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
+		COL = { all_core = { add_core = ENG } }
+		
         ai_chance = {
-            factor = 3
-        }
-    }
-
-    option = {
-        name = "EVT44151OPTB" #UK rejects
-        badboy = 5
-        prestige = 10
-        COL = { all_core = { add_core = ENG } }
-        17 = { add_core = COL remove_core = RPL }
-        3597 = { add_core = COL remove_core = RPL }
-		2 = { add_core = COL remove_core = RPL }
-        2629 = { remove_core = USA remove_core = ENG }
-        18 = { remove_core = USA remove_core = ENG }
-        leave_alliance = USA
-		USA = { country_event = 44153 }
-        ai_chance = {
-            factor = 1
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_parallel_island
-			}
-        }
-    }
-}
-
-country_event = {
-    id = 441531
-    title = "EVTNAME44152" #The Oregon Treaty
-    desc = "EVTDESC441521"
-    picture = "oregon_treaty"
-    major = yes
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT44152OPTA"
-        prestige = 10
-        relation = { who = ENG value = 100 }
-        RPL = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-			}
-        }
-        CAN = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-			}
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = pacifism
-                factor = -3
-            }
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-		15 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		16 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		19 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		21 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		20 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		13 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		14 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3598 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3600 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3599 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		368 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		78 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		79 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3466 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3465 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3464 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		80 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		82 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3463 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3462 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3461 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		83 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		81 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		91 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		92 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		93 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		111 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		114 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		set_global_flag = uor_compromise
-		# Audax Validator "." Ignore_NEXT
-		any_land_province = {
-			limit = {
-				is_core = UOR
-				OR = { owned_by = THIS owned_by = ENG owned_by = RPL owned_by = COL }
-			}
-			secede_province = THIS
-			secede_province = UOR
-		}
-		UOR = {
-			any_owned = {
-				add_province_modifier = {
-					name = gateway_to_america
-					duration = 3650
-				}
-			}
-			any_owned = {
-				limit = {
-					NOT = { life_rating = 35 }
-				}
-				life_rating = 5
-			}
-		}
-		release_vassal = UOR
-		UOR = { government = democracy add_accepted_culture = anglo_canadian }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		ai_chance = { factor = 1 }
-    }
-
-    option = {
-        name = "Onwards, to Oregon! §BPlay as Oregon§W"
-        prestige = 10
-        relation = { who = ENG value = 100 }
-        RPL = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-			}
-        }
-        CAN = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-			}
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = pacifism
-                factor = -3
-            }
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-		15 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		16 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		19 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		21 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		20 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		13 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		14 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3598 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3600 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3599 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		368 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		78 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		79 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3466 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3465 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3464 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		80 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		82 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3463 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3462 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		3461 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		83 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		81 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		91 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		92 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		93 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		111 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		114 = { add_core = UOR remove_core = THIS remove_core = ENG remove_core = RPL remove_core = COL }
-		set_global_flag = uor_compromise
-		# Audax Validator "." Ignore_NEXT
-		any_land_province = {
-			limit = {
-				is_core = UOR
-				OR = { owned_by = THIS owned_by = ENG owned_by = RPL owned_by = COL }
-			}
-			secede_province = THIS
-			secede_province = UOR
-		}
-		UOR = {
-			any_owned = {
-				add_province_modifier = {
-					name = gateway_to_america
-					duration = 3650
-				}
-			}
-			any_owned = {
-				limit = {
-					NOT = { life_rating = 35 }
-				}
-				life_rating = 5
-			}
-		}
-		release_vassal = UOR
-		UOR = { government = democracy add_accepted_culture = anglo_canadian }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		change_tag_no_core_switch = UOR
-		ai_chance = { factor = 0 }
-    }
-}
-
-country_event = {
-    id = 441521
-    title = "EVTNAME44152" #The Oregon Treaty
-    desc = "EVTDESC44152"
-    news = yes
-    news_desc_long = "EVTDESC44152_NEWS_LONG"
-    news_desc_medium = "EVTDESC44152_NEWS_MEDIUM"
-    news_desc_short = "EVTDESC44152_NEWS_SHORT"
-    picture = "oregon_treaty"
-    major = yes
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT44152OPTA"
-		inherit = UOR
-        prestige = 10
-        relation = { who = ENG value = 100 }
-        any_owned = {
-            limit = {
-                OR = {
-                    region = CAN_13
-                    region = ENG_22
-                }
-            }
-            remove_core = USA
-            secede_province = ENG
-        }
-        RPL = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-					NOT = { province_id = 3598 }
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-				secede_province = USA
-			}
-        }
-        CAN = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					region = USA_78
-					NOT = { province_id = 3598 }
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = CAN
-				secede_province = USA
-			}
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = pacifism
-                factor = -3
-            }
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		ai_chance = {
-            factor = 1
-        }
-    }
-}
-
-country_event = {
-    id = 441522
-    title = "EVTNAME44152" #The Oregon Treaty
-    desc = "EVTDESC44152"
-    news = yes
-    news_desc_long = "EVTDESC44152_NEWS_LONG"
-    news_desc_medium = "EVTDESC44152_NEWS_MEDIUM"
-    news_desc_short = "EVTDESC44152_NEWS_SHORT"
-    picture = "oregon_treaty"
-    major = yes
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT44152OPTA"
-		inherit = UOR
-        prestige = 10
-        relation = { who = ENG value = 100 }
-        any_owned = {
-            limit = {
-                OR = {
-                    region = CAN_13
-                    region = ENG_22
-                }
-				NOT = { province_id = 14 }
-            }
-            remove_core = USA
-            secede_province = ENG
-        }
-        RPL = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					OR = {
-						region = USA_78
-						province_id = 14
-					}
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-				secede_province = USA
-			}
-        }
-        CAN = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					OR = {
-						region = USA_78
-						province_id = 14
-					}
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = CAN
-				secede_province = USA
-			}
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = pacifism
-                factor = -3
-            }
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		14 = { add_core = THIS }
-		3598 = { add_core = THIS }
-		ai_chance = {
-            factor = 1
-        }
-    }
-}
-
-country_event = {
-    id = 441523
-    title = "EVTNAME44152" #The Oregon Treaty
-    desc = "EVTDESC44152"
-    news = yes
-    news_desc_long = "EVTDESC44152_NEWS_LONG"
-    news_desc_medium = "EVTDESC44152_NEWS_MEDIUM"
-    news_desc_short = "EVTDESC44152_NEWS_SHORT"
-    picture = "oregon_treaty"
-    major = yes
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT44152OPTA"
-		inherit = UOR
-        prestige = 10
-        relation = { who = ENG value = 100 }
-        any_owned = {
-            limit = {
-                OR = {
-                    region = CAN_13
-                    region = ENG_22
-                }
-            }
-            remove_core = USA
-            secede_province = ENG
-        }
-        RPL = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					OR = {
-						province_id = 3466
-						province_id = 80
-					}
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = RPL
-				secede_province = USA
-			}
-        }
-        CAN = {
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.1
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 79
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-			any_pop = {
-                limit = {
-                    location = {
-                        province_id = 3600
-                    }
-                    has_pop_culture = native_american_minor
-                }
-                reduce_pop = 0.4
-            }
-            any_pop = {
-                limit = {
-                    location = {
-                        province_id = 78
-                    }
-                    has_pop_culture = yankee
-                }
-                reduce_pop = 2.5
-            }
-			any_owned = {
-				limit = {
-					OR = {
-						province_id = 3466
-						province_id = 80
-					}
-				}
-				remove_core = ENG
-				remove_core = COL
-				remove_core = CAN
-				secede_province = USA
-			}
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = pacifism
-                factor = -3
-            }
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		ai_chance = {
-            factor = 1
+            factor = 75
+            modifier = { factor = 0.5 exists = USA relation = { who = USA value = 100 } }
+            modifier = { factor = 2 exists = USA NOT = { relation = { who = USA value = 0 } } }
+            modifier = { factor = 1.5 war_policy = jingoism }
+            modifier = { factor = 0.8 war_policy = anti_military }
+            modifier = { factor = 0.5 war_policy = pacifism }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_island }
         }
     }
 }
 
 country_event = {
     id = 44153
-    title = "EVTNAME44153" #Negotiations Break Down
+    title = "EVTNAME44153" #America suggests a border on the 49th parallel excluding vancouver island - do we agree?
     desc = "EVTDESC44153"
     news = yes
-    news_desc_long = "EVTDESC44153_NEWS_LONG"
-    news_desc_medium = "EVTDESC44153_NEWS_MEDIUM"
-    news_desc_short = "EVTDESC44153_NEWS_SHORT"
-    picture = "treaty"
+    news_desc_long = "EVTDESC44154_NEWS_LONG"
+    news_desc_medium = "EVTDESC44154_NEWS_MEDIUM"
+    news_desc_short = "EVTDESC44154_NEWS_SHORT"
+    picture = "administration"
 
     is_triggered_only = yes
 
     option = {
-        name = "EVT44153OPTA"
-        prestige = -20
-        relation = { who = ENG value = -50 }
-		inherit = UOR
-        any_owned = {
-            limit = {
-                RPL = { exists = yes }
-                OR = {
-                    is_core = COL
-                    is_core = RPL
-                }
-            }
-            secede_province = RPL
-        }
-        any_owned = {
-            limit = {
-                RPL = { exists = no }
-                OR = {
-                    is_core = COL
-                    is_core = RPL
-                }
-            }
-            secede_province = CAN
-        }
-        COL = { all_core = { remove_core = USA } }
-        any_pop = {
-            scaled_militancy = {
-                issue = jingoism
-                factor = 3
-            }
-        }
-        ai_chance = {
-            factor = 30
-            modifier = {
-                factor = 1.5
-                any_greater_power = { war_with = THIS }
-            }
-            modifier = {
-                factor = 0.5
-                war_policy = jingoism
-            }
-            modifier = {
-                factor = 0
-                has_global_flag = railroaded_us_oregon
-            }
+        name = "EVT44153OPTA" #Accept
+        ##set_global_flag = USA_claimoregon
+		USA = { country_event = 44159 }
+        prestige = -10
+		relation = { who = USA value = 50 }
+		any_owned = { #Any province below the 49th parallel and owned by ENG or a vassal is ceded to USA and gains a core
+			limit = {
+				AND = {
+					OR = {
+						region = USA_91 #Idaho
+						region = USA_81 #Oregon
+						region = USA_78 #Washington
+					}
+					owner = {
+						OR = {
+							vassal_of = ENG
+							tag = ENG
+						}
+					}
+				}
+			}
+			secede_province = USA
+			add_core = USA
+		}
+		COL = { #Any COL core not owned by ENG or a vassal is removed
+			all_core = {
+				limit = {
+					owner = {
+						NOT = {
+							OR = {
+								vassal_of = ENG
+								tag = ENG
+							}
+						}
+					}
+				}
+				remove_core = COL
+				remove_core = RPL
+				remove_core = CAN
+			}
+		}
+		
+		ai_chance = {
+            factor = 90
+            modifier = { factor = 1.5 any_greater_power = { war_with = ENG } }
+            modifier = { factor = 0.5 NOT = { AND = { exists = USA relation = { who = USA value = 100 } } } }
+            modifier = { factor = 0.5 war_policy = jingoism }
         }
     }
 
     option = {
-        name = "EVT44153OPTB"
-		inherit = UOR
+        name = "EVT44151OPTB" #Reject and counter-claim for all of Oregon (Same loc for all reject options)
+        ##set_global_flag = USA_claimoregon
+        ##set_country_flag = oregon_war
+		USA = { country_event = 44160 }
         prestige = 5
-        relation = { who = ENG value = -100 }
-		COL = { all_core = { add_core = USA } }
-		CAN_13 = { add_core = USA }
-		war = {
-			target = ENG
-			attacker_goal = {
-				casus_belli = acquire_all_cores
-				country = USA
+        leave_alliance = USA
+        relation = { who = USA value = -200 }
+        any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
+			limit = {
+				AND = {
+					OR = {
+						is_core = COL
+					}
+					owner = {
+						vassal_of = ENG
+					}
+				}
 			}
-			defender_goal = {
-				casus_belli = acquire_all_cores
-				country = ENG
-			}
+			secede_province = ENG
 		}
 		COL = { all_core = { add_core = ENG } }
-        CAN_13 = { add_core = ENG }
-        2629 = { remove_core = USA remove_core = ENG }
-        18 = { remove_core = USA remove_core = ENG }
-		17 = { remove_core = USA remove_core = ENG }
-		3597 = { remove_core = USA remove_core = ENG }
-        2 = { remove_core = USA remove_core = ENG }
-        any_pop = {
-            scaled_consciousness = {
-                issue = jingoism
-                factor = -3
-            }
-        }
-        ENG = {
-            country_event = 44157
-        }
+		
         ai_chance = {
-            factor = 50
-            modifier = {
-                factor = 0
-                is_greater_power = no
-            }
-            modifier = {
-                factor = 0.5
-                war = yes
-            }
-            modifier = {
-                factor = 0.5
-                war_policy = anti_military
-            }
-            modifier = {
-                factor = 0
-                war_policy = pacifism
-            }
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
+            factor = 10
+            modifier = { factor = 0.5 exists = USA relation = { who = USA value = 100 } }
+            modifier = { factor = 2 exists = USA NOT = { relation = { who = USA value = 0 } } }
+            modifier = { factor = 1.5 war_policy = jingoism }
+            modifier = { factor = 0.8 war_policy = anti_military }
+            modifier = { factor = 0.5 war_policy = pacifism }
+			modifier = { factor = 0	has_global_flag = railroaded_parallel_oregon }
         }
     }
 }
 
 country_event = {
     id = 44154
-    title = "EVTNAME44154" #American Claims in Columbia
+    title = "EVTNAME44154" #America suggests a neutral oregon - do we agree?
     desc = "EVTDESC44154"
     news = yes
     news_desc_long = "EVTDESC44154_NEWS_LONG"
@@ -2166,376 +1145,278 @@ country_event = {
     is_triggered_only = yes
 
     option = {
-        name = "EVT44154OPTA"
-        set_global_flag = USA_claimoregon
-        prestige = -20
-		USA = { country_event = 44155 }
-		relation = {
-			who = USA
-			value = 50
-		}
-		any_owned = {
+        name = "EVT44154OPTA" #Accept
+        ##set_global_flag = USA_claimoregon
+		USA = { country_event = 44159 }
+        prestige = -10
+		relation = { who = USA value = 50 }
+		any_owned = { #Any province below the 49th parallel and owned by ENG or a vassal is ceded to USA
 			limit = {
-				OR = {
-					is_core = COL
-					is_core = USA
+				AND = {
+					OR = {
+						region = USA_91 #Idaho
+						region = USA_81 #Oregon
+						region = USA_78 #Washington
+					}
+					owner = {
+						OR = {
+							vassal_of = ENG
+							tag = ENG
+						}
+					}
 				}
 			}
 			secede_province = USA
-			remove_core = RPL
-			remove_core = CAN
-			remove_core = ENG
 		}
-		RPL = {
-			any_owned = {
+		COL = { #All Columbian cores not in Columbia state (below the 49th parallel) replaced with UOR cores
+			all_core = {
 				limit = {
-					OR = {
-						is_core = COL
-						is_core = USA
-					}
+					NOT = { region = CAN_13 }
 				}
-				secede_province = USA
-				remove_core = RPL
-				remove_core = CAN
+				add_core = UOR
+				remove_core = COL
 			}
 		}
-		CAN = {
+		any_owned = { #All oregon cores are ceded to it 
+			limit = {
+				is_core = UOR
+			}
+			secede_province = UOR
+		}
+		UOR = {
+			government = democracy
+			add_accepted_culture = anglo_canadian
 			any_owned = {
-				limit = {
-					OR = {
-						is_core = COL
-						is_core = USA
-					}
-				}
-				secede_province = USA
-				remove_core = RPL
-				remove_core = CAN
+				add_province_modifier = { name = gateway_to_america duration = 3650 }
+				add_province_modifier = { name = indian_lands duration = -1 }
 			}
 		}
-		COL = {
-            primary_culture = yankee
-            remove_accepted_culture = anglo_canadian
-            remove_accepted_culture = french_canadian
-        }
-        78 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        79 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3600 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3464 = { add_province_modifier = { name = indian_lands duration = -1 } }
-        3465 = { add_province_modifier = { name = indian_lands duration = -1 } }
-		3598 = { secede_province = THIS }
-		3598 = { secede_province = RPL }
+		
 		ai_chance = {
             factor = 25
-            modifier = {
-                factor = 1.5
-                any_greater_power = { war_with = ENG }
-            }
-            modifier = {
-                factor = 0.5
-                NOT = { AND = { exists = USA relation = { who = USA value = 100 } } }
-            }
-            modifier = {
-                factor = 0.5
-                war_policy = jingoism
-            }
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_war_oregon
-			}
+            modifier = { factor = 1.5 any_greater_power = { war_with = ENG } }
+            modifier = { factor = 0.5 NOT = { AND = { exists = USA relation = { who = USA value = 100 } } } }
+            modifier = { factor = 0.5 war_policy = jingoism }
         }
     }
 
     option = {
-        name = "EVT44154OPTB"
-        set_global_flag = USA_claimoregon
-        set_country_flag = oregon_war
+        name = "EVT44151OPTB" #Reject and counter-claim for all of Oregon (Same loc for all reject options)
+        ##set_global_flag = USA_claimoregon
+        ##set_country_flag = oregon_war
+		USA = { country_event = 44160 }
         prestige = 5
         leave_alliance = USA
         relation = { who = USA value = -200 }
-        RPL = {
-            any_owned = {
-                limit = {
-					is_core = COL
-					NOT = {
-						province_id = 17
-						province_id = 2629
-						province_id = 18
-						province_id = 3597
-						province_id = 2
+        any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
+			limit = {
+				AND = {
+					OR = {
+						is_core = COL
+					}
+					owner = {
+						vassal_of = ENG
 					}
 				}
-                secede_province = ENG
-                add_core = ENG
-            }
-        }
-        CAN = {
-            any_owned = {
-                limit = {
-					is_core = COL
-					NOT = {
-						province_id = 17
-						province_id = 2629
-						province_id = 18
-						province_id = 3597
-						province_id = 2
-					}
-				}
-                secede_province = ENG
-                add_core = ENG
-            }
-        }
-		war = {
-			target = USA
-			attacker_goal = {
-				casus_belli = acquire_all_cores
-				country = ENG
 			}
-			defender_goal = {
-				casus_belli = acquire_all_cores
-				country = USA
-			}
+			secede_province = ENG
 		}
-		USA = {
-			inherit = UOR
-		}
+		COL = { all_core = { add_core = ENG } }
+		
         ai_chance = {
             factor = 75
-            modifier = {
-                factor = 0.5
-                exists = USA
-				relation = { who = USA value = 100 }
-            }
-            modifier = {
-                factor = 2
-				exists = USA
-				NOT = { relation = { who = USA value = 0 } }
-            }
-            modifier = {
-                factor = 1.5
-                war_policy = jingoism
-            }
-            modifier = {
-                factor = 0.8
-                war_policy = anti_military
-            }
-            modifier = {
-                factor = 0.5
-                war_policy = pacifism
-            }
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_us_oregon
-			}
+            modifier = { factor = 0.5 exists = USA relation = { who = USA value = 100 } }
+            modifier = { factor = 2 exists = USA NOT = { relation = { who = USA value = 0 } } }
+            modifier = { factor = 1.5 war_policy = jingoism }
+            modifier = { factor = 0.8 war_policy = anti_military }
+            modifier = { factor = 0.5 war_policy = pacifism }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
         }
     }
 }
 
 country_event = {
     id = 44155
-    title = "EVTNAME44155" #Oregon Country is Ours
+    title = "EVTNAME44155" #America suggests a status quo - do we agree?
     desc = "EVTDESC44155"
-    picture = "treaty"
+    news = yes
+    news_desc_long = "EVTDESC44154_NEWS_LONG"
+    news_desc_medium = "EVTDESC44154_NEWS_MEDIUM"
+    news_desc_short = "EVTDESC44154_NEWS_SHORT"
+    picture = "administration"
 
     is_triggered_only = yes
 
     option = {
-        name = "EVT44155OPTA"
-		inherit = UOR
-        prestige = 25
-		RPL = {
-			any_owned = {
-				limit = {
-					is_core = COL
-					NOT = {
-						province_id = 17
-						province_id = 3597
-						province_id = 2629
-						province_id = 18
-						province_id = 2
+        name = "EVT44155OPTA" #Accept
+        ##set_global_flag = USA_claimoregon
+		USA = { country_event = 44159 }
+        prestige = -10
+		relation = { who = USA value = 50 }
+		any_owned = { #Any province below the columbia river and owned by ENG or a vassal is ceded to USA
+			limit = {
+				AND = {
+					OR = {
+						region = USA_91 #Idaho
+						region = USA_81 #Oregon
+						province_id = 3446 #Spokane
+						province_id = 80 #Walla Walla
 					}
+					owner = {
+						OR = {
+							vassal_of = ENG
+							tag = ENG
+						}
+					}
+				}
+			}
+			secede_province = USA
+		}
+		COL = { #Any Columbian core which is now under USA ownership adds a core
+			all_core = {
+				limit = {
+					owned_by = USA
 				}
 				add_core = USA
-				remove_core = RPL
-				remove_core = ENG
-				remove_core = COL
-				remove_core = CAN
-				secede_province = USA
 			}
 		}
-		USA_78 = {
-			remove_core = ENG
-			remove_core = COL
-			add_core = USA
-		}
-        17 = { remove_core = USA }
-        3597 = { remove_core = USA }
-		2 = { remove_core = USA }
-        2629 = { remove_core = USA }
-        18 = { remove_core = USA }
-        COL = { all_core = { remove_core = ENG } }
-        USA_81 = {
-            remove_core = ENG
-            remove_core = COL
-        }
-        USA_91 = {
-            remove_core = ENG
-            remove_core = COL
-        }
-        114 = { remove_core = COL }
-        111 = { remove_core = COL }
-        any_pop = {
-            scaled_consciousness = {
-                issue = jingoism
-                factor = -6
-            }
-        }
-    }
-}
-
-country_event = {
-    id = 44156
-    title = "EVTNAME44156" #Oregon Country is Split Along Columbia River
-    desc = "EVTDESC44156"
-    picture = "treaty"
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT44156OPTA"
-        prestige = 15
-        78 = { add_core = ENG }
-        79 = { add_core = ENG }
-        3600 = { add_core = ENG }
-        3464 = { add_core = ENG }
-        3465 = { add_core = ENG }
-        CAN_13 = { add_core = ENG }
-        ENG_22 = { add_core = ENG }
-		USA_81 = {
-			add_core = USA
-			remove_core = COL
-			remove_core = ENG
-		}
-		USA_91 = {
-			add_core = USA
-			remove_core = COL
-		}
-		USA = { country_event = 441523 }
-        114 = {
-            remove_core = COL
-        }
-        111 = {
-            remove_core = COL
-        }
-        80 = {
-            remove_core = COL
-        }
-        3466 = {
-            remove_core = COL
-        }
-        any_pop = {
-            scaled_consciousness = {
-                issue = jingoism
-                factor = -3
-            }
-        }
-        ai_chance = {
-            factor = 98
-            modifier = {
-                factor = 2
-                exists = USA
-				relation = { who = USA value = 100 }
-            }
-            modifier = {
-                factor = 0.5
-				exists = USA
-				NOT = { relation = { who = USA value = -100 } }
-            }
-            modifier = {
-                factor = 1.2
-                war_policy = anti_military
-            }
-            modifier = {
-                factor = 1.5
-                war_policy = pacifism
-            }
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_uk_oregon
-			}
-        }
-    }
-
-    option = {
-        name = "EVT44156OPTB"
-        badboy = 5
-        prestige = 10
-        COL = { all_core = { add_core = ENG } }
-        leave_alliance = USA
-		USA = { country_event = 44153 }
-        any_pop = {
-            scaled_militancy = {
-                issue = jingoism
-                factor = -6
-            }
-            scaled_militancy = {
-                issue = pacifism
-                factor = 6
-            }
-        }
-        ai_chance = {
-            factor = 2
-            modifier = {
-                factor = 0
-                alliance_with = USA
-            }
-            modifier = {
-                factor = 0.5
-				relation = { who = USA value = 100 }
-            }
-            modifier = {
-                factor = 2
-				NOT = { relation = { who = USA value = 0 } }
-            }
-            modifier = {
-                factor = 0.5
-                war_policy = anti_military
-            }
-            modifier = {
-                factor = 0
-                war_policy = pacifism
-            }
-			modifier = {
-				factor = 0
-				has_global_flag = railroaded_columbia_oregon
-			}
-        }
-    }
-}
-
-country_event = {
-    id = 44157
-    title = "EVTNAME44157" #UK Gets Colombia from HBC
-    desc = "EVTDESC44157"
-    picture = "treaty"
-
-    is_triggered_only = yes
-
-    option = {
-        name = "EVT6044157OPTA"
-        RPL = {
-            any_owned = {
-                limit = {
-					is_core = COL
-					NOT = {
-						province_id = 17
-						province_id = 2629
-						province_id = 18
-						province_id = 3597
-						province_id = 2
+		COL = { #All Columbian cores below the columbia river removed
+			all_core = {
+				limit = {
+					NOT = { 
+						region = CAN_13 #Columbia
+						province_id = 78 #For Nisqually
+						province_id = 79 #Fort Vancouver
+						province_id = 3464 #Yakima
+						province_id = 3465 #North Cascades
+						province_id = 3598 #San Juan Islands
+						province_id = 3600 #Port Townsend
 					}
 				}
-                secede_province = ENG
-            }
+				remove_core = COL
+			}
+		}
+		
+		ai_chance = {
+            factor = 25
+            modifier = { factor = 1.5 any_greater_power = { war_with = ENG } }
+            modifier = { factor = 0.5 NOT = { AND = { exists = USA relation = { who = USA value = 100 } } } }
+            modifier = { factor = 0.5 war_policy = jingoism }
         }
+    }
+
+    option = {
+        name = "EVT44151OPTB" #Reject and counter-claim for all of Oregon (Same loc for all reject options)
+        ##set_global_flag = USA_claimoregon
+        ##set_country_flag = oregon_war
+		USA = { country_event = 44160 }
+        prestige = 5
+        leave_alliance = USA
+        relation = { who = USA value = -200 }
+        any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
+			limit = {
+				AND = {
+					OR = {
+						is_core = COL
+					}
+					owner = {
+						vassal_of = ENG
+					}
+				}
+			}
+			secede_province = ENG
+		}
+		COL = { all_core = { add_core = ENG } }
+		
+        ai_chance = {
+            factor = 75
+            modifier = { factor = 0.5 exists = USA relation = { who = USA value = 100 } }
+            modifier = { factor = 2 exists = USA NOT = { relation = { who = USA value = 0 } } }
+            modifier = { factor = 1.5 war_policy = jingoism }
+            modifier = { factor = 0.8 war_policy = anti_military }
+            modifier = { factor = 0.5 war_policy = pacifism }
+			modifier = { factor = 0	has_global_flag = railroaded_uor_oregon }
+        }
+    }
+}
+
+country_event = {
+    id = 44159
+    title = "EVTNAME44159" #UK accepts our proposal
+    desc = "EVTDESC44159"
+    picture = "treaty"
+
+    is_triggered_only = yes
+
+    option = {
+        name = "EVT44159OPTA" #Great!
+		
+        ai_chance = { factor = 1 }
+    }
+}
+
+country_event = {
+    id = 44160
+    title = "EVTNAME44160" #UK Counter-claims all of Oregon
+    desc = "EVTDESC44160"
+    picture = "treaty"
+
+    is_triggered_only = yes
+
+    option = {
+        name = "EVT44160OPTA" #Go to war over oregon
+		ENG = { country_event = 44161 } #Notify ENG
+		COL = { all_core = { add_core = USA } }
+		war = {
+			target = ENG
+			attacker_goal = { casus_belli = acquire_all_cores }
+			defender_goal = { casus_belli = acquire_all_cores }
+		}
+		
+        ai_chance = { factor = 1 }
+    }
+
+    option = {
+        name = "EVT44160OPTB" #Back down and concede oregon
+		ENG = { country_event = 44162 } #Notify ENG
+		any_owned = { #Any province which is a core of Columbia and owned by a vassal of ENG is ceded to ENG
+			limit = {
+				is_core = COL
+			}
+			secede_province = ENG
+			remove_core = USA
+		}
+
+        ai_chance = { factor = 1 }
+    }
+}
+
+country_event = {
+    id = 44161
+    title = "EVTNAME44161" #America has chosen war
+    desc = "EVTDESC44161"
+    picture = "treaty"
+
+    is_triggered_only = yes
+
+    option = {
+        name = "EVT44161OPTA" #Go to war over oregon
+		
+        ai_chance = { factor = 1 }
+    }
+}
+
+country_event = {
+    id = 44162
+    title = "EVTNAME44162" #America backs down over oregon
+    desc = "EVTDESC44162"
+    picture = "treaty"
+
+    is_triggered_only = yes
+
+    option = {
+        name = "EVT44162OPTA" #Go to war over oregon
+		
+        ai_chance = { factor = 1 }
     }
 }
